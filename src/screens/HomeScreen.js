@@ -1,47 +1,67 @@
 // src/screens/HomeScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-
-
-const projects = [
-  { id: '1', name: 'Project 1', lastEdited: '2025-03-15' },
-  { id: '2', name: 'Project 2', lastEdited: '2025-03-10' },
-  { id: '3', name: 'Project 3', lastEdited: '2025-03-05' },
-  { id: '4', name: 'Project 4', lastEdited: '2025-02-28' },
-  // Add more projects as needed
-];
-
-const ProjectCard = ({ name, lastEdited }) => {
-  return (
-    <View style={styles.projectCard}>
-      <View style={styles.thumbnail}>
-        <Text style={styles.thumbnailText}>Project Thumbnail</Text>
-      </View>
-      <Text style={styles.projectName}>{name}</Text>
-      <Text style={styles.lastEdited}>Last edited: {lastEdited}</Text>
-    </View>
-  );
-};
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const HomeScreen = () => {
+
+  const navigation = useNavigation(); // Initialize navigation
+
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Projects</Text>
-      <FlatList
-        data={projects}
-        renderItem={({ item }) => (
-          <ProjectCard name={item.name} lastEdited={item.lastEdited} />
-        )}
-        keyExtractor={(item) => item.id}
-        numColumns={2} // Display projects in a grid layout
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.flatListContent}
-      />
-      
-      {/* Floating Add Button */}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => {/* Add new project action */}}>
-        {/* <MaterialIcons name="add" size={24} color="white" /> */}
-      </TouchableOpacity>
+      {/* Welcome Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Welcome User,</Text>
+        <MaterialIcons name="notifications-none" size={24} color="#fff" />
+      </View>
+
+ {/* Tabs */}
+ <View style={styles.tabsContainer}>
+        <TouchableOpacity style={[styles.tab, styles.activeTab]}>
+          <Text style={styles.tabTextActive}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() => navigation.navigate('InflowScreen')} // Navigate to Inflow
+        >
+          <Text style={styles.tabText}>Inflow</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.tab}
+          onPress={() => navigation.navigate('OutflowScreen')} // Navigate to Outflow
+        >
+          <Text style={styles.tabText}>Outflow</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tab}>
+          <Text style={styles.tabText}>Savings</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.dropdown}>
+          <Text style={styles.dropdownText}>1 Month</Text>
+          <MaterialIcons name="arrow-drop-down" size={16} color="#fff" />
+        </TouchableOpacity>
+
+      </View>
+
+      {/* Dropdown and Date Range */}
+      <View style={styles.dateRangeContainer}>
+  <View style={styles.dateRange}>
+    <TouchableOpacity style={styles.dateButton}>
+      <MaterialIcons name="calendar-today" size={16} color="#fff" />
+      <Text style={styles.dateText}>12th Jan 2024</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={[styles.dateButton, styles.dateButtonRight]}>
+      <MaterialIcons name="calendar-today" size={16} color="#fff" />
+      <Text style={styles.dateText}>20th Apr 2024</Text>
+    </TouchableOpacity>
+  </View>
+  <TouchableOpacity style={styles.downloadButton}>
+    <MaterialIcons name="file-download" size={20} color="#fff" />
+  </TouchableOpacity>
+</View>
+
     </View>
   );
 };
@@ -49,68 +69,91 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'white',
     padding: 16,
   },
-  title: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#000',
   },
-  row: {
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#333',
+    marginRight: 8,
+  },
+  activeTab: {
+    backgroundColor: '#00a86b',
+  },
+  tabText: {
+    color: '#ccc',
+    fontSize: 14,
+  },
+  tabTextActive: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  dateRangeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 16,
   },
-  projectCard: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 16,
-    margin: 8,
+  dropdown: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3, // For Android shadow
+    backgroundColor: '#333',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
+  dropdownText: {
+    color: '#fff',
+    marginRight: 6,
+  },
+  dateRange: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 4,
-    marginBottom: 12,
   },
-  thumbnailText: {
-    color: '#7f7f7f',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  projectName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  lastEdited: {
-    fontSize: 12,
-    color: '#888888',
-  },
-  flatListContent: {
-    paddingBottom: 100, // To avoid overlap with floating button
-  },
-  floatingButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#000000',
-    justifyContent: 'center',
+  dateButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    elevation: 5,
+    backgroundColor: '#333',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 10, // Space between adjacent buttons
+  },
+  dateText: {
+    color: '#fff',
+    marginLeft: 10,
+  },
+  dateSeparator: {
+    color: '#fff',
+    marginHorizontal: 6,
+  },
+  downloadButton: {
+    backgroundColor: '#333',
+    padding: 10,
+    borderRadius: 10,
+  },
+  dateButtonRight: {
+    marginLeft: 40, // Space for the second date button
   },
 });
 
 export default HomeScreen;
+
+
