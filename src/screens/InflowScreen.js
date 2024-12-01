@@ -1,23 +1,29 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-
 const inflowData = [
-    { id: '1', date: '12th JAN 2024', type: 'Salary', description: 'Jan month salary', amount: '₹20,000', icon: 'attach-money' },
-    { id: '2', date: '12th FEB 2024', type: 'Salary', description: 'Feb month salary', amount: '₹20,000', icon: 'attach-money' },
-    { id: '3', date: '12th FEB 2024', type: 'Freelance work', description: 'Freelance project XYZ', amount: '₹10,000', icon: 'work' },
-    { id: '4', date: '12th MAR 2024', type: 'Salary', description: 'March month salary', amount: '₹20,000', icon: 'attach-money' },
-    { id: '5', date: '12th APR 2024', type: 'Salary', description: 'April month salary', amount: '₹20,000', icon: 'attach-money' },
-  ];
+  { id: '1', date: '12th JAN 2024', type: 'Salary', description: 'Jan month salary', amount: '₹20,000', icon: 'attach-money' },
+  { id: '2', date: '12th FEB 2024', type: 'Salary', description: 'Feb month salary', amount: '₹20,000', icon: 'attach-money' },
+  { id: '3', date: '12th FEB 2024', type: 'Freelance work', description: 'Freelance project XYZ', amount: '₹10,000', icon: 'work' },
+  { id: '4', date: '12th MAR 2024', type: 'Salary', description: 'March month salary', amount: '₹20,000', icon: 'attach-money' },
+  { id: '5', date: '12th APR 2024', type: 'Salary', description: 'April month salary', amount: '₹20,000', icon: 'attach-money' },
+];
 
 const InflowScreen = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredData = inflowData.filter(item => 
+    item.type.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Text style={styles.date}>{item.date}</Text>
       <View style={styles.row}>
-      <View style={styles.iconContainer}>
-          <MaterialIcons name={item.icon} size={40} color="#28a745" /> {/* Icon from MaterialIcons */}
+        <View style={styles.iconContainer}>
+          <MaterialIcons name={item.icon} size={40} color="#28a745" />
         </View>
         <View style={styles.details}>
           <Text style={styles.type}>{item.type}</Text>
@@ -28,7 +34,7 @@ const InflowScreen = () => {
     </View>
   );
 
-  const totalAmount = inflowData.reduce((sum, item) => {
+  const totalAmount = filteredData.reduce((sum, item) => {
     return sum + parseInt(item.amount.replace(/₹|,/g, ''), 10);
   }, 0);
 
@@ -36,12 +42,22 @@ const InflowScreen = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Cashflow</Text>
       <Text style={styles.subtitle}>Report from 12th Jan 2024 - 20th Apr 2024</Text>
+
+      {/* Search Bar */}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search Transactions"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+
       <FlatList
-        data={inflowData}
+        data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.listContainer}
       />
+
       <View style={styles.totalContainer}>
         <Text style={styles.totalText}>Total</Text>
         <Text style={styles.totalAmount}>₹{totalAmount.toLocaleString()}</Text>
@@ -57,10 +73,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
+    color: '#333',
   },
   subtitle: {
     fontSize: 14,
@@ -68,11 +85,28 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 16,
   },
+  searchInput: {
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingLeft: 40,
+    marginBottom: 16,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    elevation: 2,
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 12,
+    top: 13,
+  },
   listContainer: {
     paddingBottom: 16,
   },
   itemContainer: {
     marginBottom: 16,
+    paddingVertical: 8,
   },
   date: {
     fontSize: 12,
@@ -84,18 +118,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 8,
   },
   iconContainer: {
-    marginRight: 12,
-  },
-  icon: {
-    width: 40,
-    height: 40,
+    marginRight: 16,
   },
   details: {
     flex: 1,
@@ -103,6 +134,7 @@ const styles = StyleSheet.create({
   type: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
   },
   description: {
     fontSize: 12,
@@ -112,6 +144,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#28a745',
+    marginLeft: 16,
   },
   totalContainer: {
     flexDirection: 'row',
@@ -122,13 +155,19 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
     backgroundColor: '#fff',
     marginTop: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   totalText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
   },
   totalAmount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#28a745',
   },

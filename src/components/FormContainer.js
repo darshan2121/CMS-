@@ -1,29 +1,53 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet } from 'react-native';
-import { RadioButton } from 'react-native-paper';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const FormContainer = ({ isVisible, onClose }) => {
   const [transactionType, setTransactionType] = useState('inflow');
+  const [paymentMode, setPaymentMode] = useState('cash');
   const [beneficiary, setBeneficiary] = useState('');
   const [amount, setAmount] = useState('');
-  const [paymentMode, setPaymentMode] = useState('cash');
-  const [date, setDate] = useState(new Date());
+  const [chequeNumber, setChequeNumber] = useState('');
   const [description, setDescription] = useState('');
+  const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
   const handleSave = () => {
+    // Validation logic
+    if (!beneficiary || !amount || (paymentMode === 'cheque' && !chequeNumber)) {
+      Alert.alert(
+        'Validation Error',
+        'Please fill all required fields before saving.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Save transaction
     console.log({
       transactionType,
+      paymentMode,
       beneficiary,
       amount,
-      paymentMode,
+      chequeNumber: paymentMode === 'cheque' ? chequeNumber : null,
       date,
       description,
     });
 
-    onClose(); // Close the form after saving
+    Alert.alert(
+      'Success',
+      'Transaction saved successfully!',
+      [{ text: 'OK', onPress: onClose }]
+    );
   };
 
   return (
@@ -37,23 +61,43 @@ const FormContainer = ({ isVisible, onClose }) => {
         <View style={styles.formContainer}>
           <Text style={styles.header}>Add Transaction</Text>
 
-          {/* Transaction Type: Inflow or Outflow */}
-          <View style={styles.radioContainer}>
-            <RadioButton
-              value="inflow"
-              status={transactionType === 'inflow' ? 'checked' : 'unchecked'}
+          {/* Transaction Type Tabs */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                transactionType === 'inflow' && styles.activeTab,
+              ]}
               onPress={() => setTransactionType('inflow')}
-            />
-            <Text style={styles.radioText}>Inflow</Text>
-            <RadioButton
-              value="outflow"
-              status={transactionType === 'outflow' ? 'checked' : 'unchecked'}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  transactionType === 'inflow' && styles.activeTabText,
+                ]}
+              >
+                Inflow
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                transactionType === 'outflow' && styles.activeTab,
+              ]}
               onPress={() => setTransactionType('outflow')}
-            />
-            <Text style={styles.radioText}>Outflow</Text>
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  transactionType === 'outflow' && styles.activeTabText,
+                ]}
+              >
+                Outflow
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Beneficiary Name */}
+          {/* Beneficiary */}
           <TextInput
             style={styles.input}
             placeholder="Beneficiary Name"
@@ -70,23 +114,53 @@ const FormContainer = ({ isVisible, onClose }) => {
             onChangeText={setAmount}
           />
 
-          {/* Mode of Payment: Cash or Check */}
-          <View style={styles.radioContainer}>
-            <RadioButton
-              value="cash"
-              status={paymentMode === 'cash' ? 'checked' : 'unchecked'}
+          {/* Payment Mode Tabs */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                paymentMode === 'cash' && styles.activeTab,
+              ]}
               onPress={() => setPaymentMode('cash')}
-            />
-            <Text style={styles.radioText}>Cash</Text>
-            <RadioButton
-              value="check"
-              status={paymentMode === 'check' ? 'checked' : 'unchecked'}
-              onPress={() => setPaymentMode('check')}
-            />
-            <Text style={styles.radioText}>Check</Text>
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  paymentMode === 'cash' && styles.activeTabText,
+                ]}
+              >
+                Cash
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                paymentMode === 'cheque' && styles.activeTab,
+              ]}
+              onPress={() => setPaymentMode('cheque')}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  paymentMode === 'cheque' && styles.activeTabText,
+                ]}
+              >
+                Cheque
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Date Picker */}
+          {/* Cheque Number (Visible only when Cheque is selected) */}
+          {paymentMode === 'cheque' && (
+            <TextInput
+              style={styles.input}
+              placeholder="Cheque Number"
+              value={chequeNumber}
+              onChangeText={setChequeNumber}
+            />
+          )}
+
+          {/* Date Picker Button */}
           <TouchableOpacity
             style={styles.datePickerButton}
             onPress={() => setIsDatePickerVisible(true)}
@@ -95,16 +169,18 @@ const FormContainer = ({ isVisible, onClose }) => {
               {date ? date.toDateString() : 'Select Date'}
             </Text>
           </TouchableOpacity>
+
+          {/* DatePicker component */}
           <DatePicker
             modal
             open={isDatePickerVisible}
             date={date}
             mode="date"
             onConfirm={(selectedDate) => {
-              setIsDatePickerVisible(false);
-              setDate(selectedDate);
+              setDate(selectedDate);  // Update selected date
+              setIsDatePickerVisible(false); // Hide the date picker
             }}
-            onCancel={() => setIsDatePickerVisible(false)}
+            onCancel={() => setIsDatePickerVisible(false)} // Cancel and hide the date picker
           />
 
           {/* Description */}
@@ -135,19 +211,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 20,
   },
   formContainer: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
-    minHeight: 400,
   },
   header: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
     textAlign: 'center',
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
@@ -156,13 +230,28 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 5,
   },
-  radioContainer: {
+  tabContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 15,
   },
-  radioText: {
-    marginRight: 20,
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    backgroundColor: '#f0f0f0',
+    marginHorizontal: 5,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#52b865',
+  },
+  tabText: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: 'white',
   },
   datePickerButton: {
     padding: 10,
@@ -179,7 +268,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop: 20,
   },
   saveButtonText: {
     color: 'white',
