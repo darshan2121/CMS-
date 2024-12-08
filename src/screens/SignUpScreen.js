@@ -9,9 +9,9 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   const handleLogin = () => {
-    // Navigate to Bottom Tabs after sign-up
-    navigation.replace('LoginScreen');
+    navigation.navigate('LoginScreen');
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>

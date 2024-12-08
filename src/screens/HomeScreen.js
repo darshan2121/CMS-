@@ -2,22 +2,42 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import { PieChart } from 'react-native-chart-kit';
+import { PieChart, LineChart } from 'react-native-chart-kit';
 import DatePicker from 'react-native-date-picker';
-import { parseDate } from '../../utils/dateUtils';
+import { parseDate } from '../../utils/dateUtils'; // Ensure you have a utility for date parsing.
+import { Dimensions } from 'react-native';
 
 const HomeScreen = () => {
+  const screenWidth = Dimensions.get('window').width;
+
   const navigation = useNavigation();
 
-  // Initializing dates using the parseDate utility
+  // Initializing date range
   const [startDate, setStartDate] = useState(() => parseDate('2024-01-12'));
   const [endDate, setEndDate] = useState(() => parseDate('2024-04-20'));
-  const dateValue = new Date(); // A valid Date object
 
   const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false);
   const [isEndDatePickerVisible, setEndDatePickerVisible] = useState(false);
 
-  // Data for the Pie Chart
+  // Line Chart Data
+  const lineChartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // Months
+    datasets: [
+      {
+        data: [2000, 2500, 3000, 4000, 3500, 4200], // Inflow data
+        color: (opacity = 1) => `rgba(82, 184, 101, ${opacity})`, // Green for inflow
+        strokeWidth: 2,
+      },
+      {
+        data: [1500, 2000, 2500, 3000, 2700, 3200], // Outflow data
+        color: (opacity = 1) => `rgba(255, 99, 71, ${opacity})`, // Red for outflow
+        strokeWidth: 2,
+      },
+    ],
+    legend: ['Inflow', 'Outflow'],
+  };
+
+  // Pie Chart Data
   const pieChartData = [
     {
       name: 'Inflow',
@@ -70,14 +90,10 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.tab}>
           <Text style={styles.tabText}>Savings</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.dropdown}>
-          <Text style={styles.dropdownText}>1 Month</Text>
-          <MaterialIcons name="arrow-drop-down" size={16} color="#fff" />
-        </TouchableOpacity>
+   
       </View>
 
-      {/* Dropdown and Date Range */}
+      {/* Date Range */}
       <View style={styles.dateRangeContainer}>
         <View style={styles.dateRange}>
           <TouchableOpacity
@@ -98,6 +114,50 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.downloadButton}>
           <MaterialIcons name="file-download" size={20} color="#fff" />
         </TouchableOpacity>
+      </View>
+
+      {/* Line Chart */}
+      <View style={styles.chartContainer}>
+        <Text style={styles.chartHeader}>Inflow and Outflow Trends</Text>
+        <LineChart
+  data={{
+    labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG'],
+    datasets: [
+      {
+        data: [10000, 20000, 30000, 35000, 40000, 45000, 48000, 50000],
+        color: (opacity = 1) => `rgba(82, 184, 101, ${opacity})`, // Green for growth
+        strokeWidth: 2,
+      },
+    ],
+  }}
+  width={screenWidth} // Use full screen width
+  height={300} // Adjust height to match screenshot
+  yAxisLabel="$"
+  yAxisSuffix=""
+  chartConfig={{
+    backgroundColor: '#ffffff',
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    decimalPlaces: 0, // No decimal places
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    propsForDots: {
+      r: '6', // Dot radius
+      strokeWidth: '2',
+      stroke: '#52b865',
+    },
+    fillShadowGradient: '#52b865', // Gradient fill color
+    fillShadowGradientOpacity: 0.3,
+    propsForBackgroundLines: {
+      display: 'none', // Remove background lines
+    },
+  }}
+  bezier
+  style={{
+    marginVertical: 8,
+    borderRadius: 16,
+  }}
+/>
       </View>
 
       {/* Pie Chart */}
@@ -202,18 +262,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 16,
   },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  dropdownText: {
-    color: '#fff',
-    marginRight: 6,
-  },
   dateRange: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -231,9 +279,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 10,
   },
-  dateButtonRight: {
-    marginLeft: 40,
-  },
   downloadButton: {
     backgroundColor: '#333',
     padding: 10,
@@ -247,14 +292,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#000',
   },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 });
-
 export default HomeScreen;

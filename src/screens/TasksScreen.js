@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, FlatList, Modal, Button } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, FlatList } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const transactions = [
@@ -14,7 +14,6 @@ const transactions = [
 export default function TasksScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
-  const [isModalVisible, setModalVisible] = useState(false);
 
   const handleSearch = () => {
     const filtered = transactions.filter(
@@ -52,67 +51,25 @@ export default function TasksScreen() {
   return (
     <View style={styles.container}>
       {/* Search Section */}
-      <View style={styles.searchFilterContainer}>
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Transactions"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-          />
-          <TouchableOpacity style={styles.filterButton} onPress={() => setModalVisible(true)}>
-            <MaterialIcons name="filter-list" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search Transactions"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+        />
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <MaterialIcons name="search" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
-      {/* Filter Modal */}
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ScrollView>
-              <Text style={styles.filterTitle}>Filter Transactions</Text>
-
-              <TextInput style={styles.inputField} placeholder="Payment Method" />
-              <TextInput style={styles.inputField} placeholder="Transaction" />
-              <TextInput style={styles.inputField} placeholder="Beneficiary Name" />
-              <TextInput style={styles.inputField} placeholder="Transaction Amount" keyboardType="numeric" />
-              <TextInput style={styles.inputField} placeholder="Inflow and Outflow" />
-              <TextInput style={styles.inputField} placeholder="Mode of Payment" />
-
-              <TouchableOpacity
-                style={styles.applyFilterButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.applyFilterButtonText}>Apply Filter</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
       <ScrollView>
-        {/* Inflow (Income) Section */}
+        {/* Mixed Transactions Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Inflow (Income)</Text>
+          <Text style={styles.sectionTitle}>All Transactions</Text>
           <FlatList
-            data={filteredTransactions.filter((item) => item.type === 'Credit')}
-            renderItem={renderTransactionCard}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
-
-        {/* Outflow (Expense) Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Outflow (Expense)</Text>
-          <FlatList
-            data={filteredTransactions.filter((item) => item.type === 'Debit')}
+            data={filteredTransactions}
             renderItem={renderTransactionCard}
             keyExtractor={(item) => item.id}
           />
@@ -135,73 +92,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 16,
   },
-  searchFilterContainer: {
-    marginBottom: 16,
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
     backgroundColor: "#f9f9f9",
     borderRadius: 25,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     elevation: 5,
   },
   searchInput: {
     flex: 1,
     height: 40,
     fontSize: 16,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 25,
     paddingLeft: 16,
     backgroundColor: "#fff",
+    borderRadius: 25,
   },
-  filterButton: {
+  searchButton: {
     marginLeft: 10,
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 12,
-    width: "80%",
-    height: "80%",
-  },
-  filterTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: "#007bff",
-  },
-  inputField: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 10,
-    marginBottom: 12,
-  },
-  applyFilterButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  applyFilterButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
   },
   section: {
     marginBottom: 24,
@@ -210,7 +124,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 12,
-    color: "#007bff", // Blue color to match your design style
+    color: "#007bff",
   },
   cardContainer: {
     backgroundColor: "#fff",
@@ -246,7 +160,7 @@ const styles = StyleSheet.create({
   cardAmount: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#28a745", // Green color for credit, red for debit
+    color: "#28a745",
   },
   totalContainer: {
     marginTop: 20,
